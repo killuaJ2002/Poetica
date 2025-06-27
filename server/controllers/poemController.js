@@ -3,7 +3,9 @@ import Poem from "../models/Poem.js";
 // get poems
 const getPoems = async (req, res) => {
   try {
-    const poems = await Poem.find().sort({ createdAt: -1 });
+    const poems = await Poem.find()
+      .populate("authorId", "username displayName")
+      .sort({ publishedAt: -1 });
     res.status(200).json(poems);
   } catch (error) {
     console.log("error", error);

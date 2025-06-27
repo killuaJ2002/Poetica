@@ -1,5 +1,5 @@
 import React from "react";
-
+import { Link } from "react-router-dom";
 const Hero = () => {
   return (
     <>
@@ -7,9 +7,9 @@ const Hero = () => {
         {/* About (Left) */}
         <div className="w-1/3">
           <p className="text-sm text-gray-600">About</p>
-          <a href="/about" className="text-blue-600 hover:underline">
+          <Link to="/about" className="text-blue-600 hover:underline">
             Learn more about Poetica
-          </a>
+          </Link>
         </div>
 
         {/* Poetica (Middle) */}

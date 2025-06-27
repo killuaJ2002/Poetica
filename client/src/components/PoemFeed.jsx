@@ -1,33 +1,35 @@
-import React from "react";
-
+import { useState, useEffect } from "react";
+import Poem from "./Poem";
+import Spinner from "./Spinner";
 const PoemFeed = () => {
+  const [poems, setPoems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const fetchPoems = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/poems");
+        const data = await res.json();
+        setPoems(data);
+      } catch (error) {
+        console.log("erro fetching data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPoems();
+  }, []);
   return (
     <>
       <main className="p-6 space-y-6">
-        <div className="bg-white p-4 rounded shadow">
-          <h2 className="text-xl font-semibold">The Whispering Wind</h2>
-          <p className="mt-2 text-gray-700">
-            In the hush of night it flies, / Telling tales beneath the skies...
-          </p>
-          <p className="mt-1 text-sm text-gray-500">by Aurora Sky</p>
-        </div>
-
-        <div className="bg-white p-4 rounded shadow">
-          <h2 className="text-xl font-semibold">Echoes of Time</h2>
-          <p className="mt-2 text-gray-700">
-            Old clocks tick in silence, / Dust of memory, soft defiance...
-          </p>
-          <p className="mt-1 text-sm text-gray-500">by Eliot Verse</p>
-        </div>
-
-        <div className="bg-white p-4 rounded shadow">
-          <h2 className="text-xl font-semibold">Moonlit Letters</h2>
-          <p className="mt-2 text-gray-700">
-            Folded dreams in inked desire, / Sent through stars that never
-            tire...
-          </p>
-          <p className="mt-1 text-sm text-gray-500">by Luna Wells</p>
-        </div>
+        {loading ? (
+          <Spinner loading={loading} />
+        ) : (
+          <>
+            {poems.map((poem) => (
+              <Poem key={poem.id} poem={poem} />
+            ))}
+          </>
+        )}
       </main>
     </>
   );

@@ -1,15 +1,22 @@
 import React, { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import Spinner from "../components/Spinner";
 
 const CreatePoemModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
     title: "",
     content: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const { getAuthHeaders } = useAuth();
+  const API_BASE_URL = "http://localhost:8000/api";
 
   // Close modal on Escape key
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === "Escape") {
+      if (e.key === "Escape" && !loading) {
         onClose();
       }
     };
@@ -24,7 +31,15 @@ const CreatePoemModal = ({ isOpen, onClose }) => {
       document.removeEventListener("keydown", handleEscape);
       document.body.style.overflow = "unset";
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, loading]);
+
+  // Reset form when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setFormData({ title: "", content: "" });
+      setError("");
+    }
+  }, [isOpen]);
 
   // Handle form input changes
   const handleChange = (e) => {
@@ -32,29 +47,53 @@ const CreatePoemModal = ({ isOpen, onClose }) => {
       ...formData,
       [e.target.name]: e.target.value,
     });
+    // Clear error when user starts typing
+    if (error) setError("");
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
 
     // Basic validation
     if (!formData.title.trim() || !formData.content.trim()) {
-      alert("Please fill in at least title and content");
+      setError("Please fill in both title and content");
+      setLoading(false);
       return;
     }
 
-    // TODO: Add your poem creation logic here
-    console.log("Creating poem:", formData);
+    try {
+      const response = await fetch(`${API_BASE_URL}/poems`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          title: formData.title.trim(),
+          content: formData.content.trim(),
+        }),
+      });
 
-    // Reset form and close modal
-    setFormData({ title: "", content: "" });
-    onClose();
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to create poem");
+      }
+
+      // Success - reset form and close modal
+      setFormData({ title: "", content: "" });
+      onClose();
+    } catch (error) {
+      console.error("Error creating poem:", error);
+      setError(error.message || "Something went wrong. Please try again.");
+    }
+
+    setLoading(false);
   };
 
-  // Close modal when clicking on backdrop
+  // Close modal when clicking on backdrop (only if not loading)
   const handleBackdropClick = (e) => {
-    if (e.target === e.currentTarget) {
+    if (e.target === e.currentTarget && !loading) {
       onClose();
     }
   };
@@ -80,7 +119,8 @@ const CreatePoemModal = ({ isOpen, onClose }) => {
             </h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+              disabled={loading}
+              className="text-gray-400 hover:text-gray-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Close modal"
             >
               <svg
@@ -115,14 +155,15 @@ const CreatePoemModal = ({ isOpen, onClose }) => {
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                disabled={loading}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                 placeholder="Enter poem title"
                 required
               />
             </div>
 
             {/* Content Field */}
-            <div className="mb-6">
+            <div className="mb-4">
               <label
                 htmlFor="content"
                 className="block text-sm font-medium text-gray-700 mb-2"
@@ -135,26 +176,39 @@ const CreatePoemModal = ({ isOpen, onClose }) => {
                 rows={8}
                 value={formData.content}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                disabled={loading}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                 placeholder="Write your poem here..."
                 required
               />
             </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="mb-4 text-red-600 text-sm text-center bg-red-50 border border-red-200 rounded-md p-3">
+                {error}
+              </div>
+            )}
 
             {/* Modal Footer */}
             <div className="flex justify-end space-x-3">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                disabled={loading}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={
+                  loading || !formData.title.trim() || !formData.content.trim()
+                }
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center"
               >
-                Create Poem
+                {loading && <Spinner className="w-4 h-4 mr-2" />}
+                {loading ? "Creating..." : "Create Poem"}
               </button>
             </div>
           </form>

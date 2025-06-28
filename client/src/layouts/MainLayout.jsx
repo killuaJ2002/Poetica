@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Hero from "../components/Hero";
 import Navbar from "../components/Navbar";
 import { Outlet } from "react-router-dom";
-
+import CreatePoemModal from "../components/CreatePoemModal";
 const MainLayout = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
 

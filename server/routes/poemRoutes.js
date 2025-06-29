@@ -4,12 +4,16 @@ import {
   createPoem,
   editPoem,
   deletePoem,
+  getPoem,
 } from "../controllers/poemController.js";
 import verifyToken from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
 // Get all the poems
 router.get("/poems", getPoems);
+
+// Get a single poem
+router.get("/poems/:id", getPoem);
 
 // Post a new poem
 router.post("/poems", verifyToken, createPoem);

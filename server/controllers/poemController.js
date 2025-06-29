@@ -13,6 +13,26 @@ const getPoems = async (req, res) => {
   }
 };
 
+// get single poem
+const getPoem = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const poem = await Poem.findById(id).populate(
+      "authorId",
+      "username displayName"
+    );
+
+    if (!poem) {
+      return res.status(404).json({ error: "Poem not found" });
+    }
+
+    res.status(200).json(poem);
+  } catch (error) {
+    console.log("error", error);
+    res.status(500).json({ error: "Failed to fetch poem" });
+  }
+};
+
 // post poems
 const createPoem = async (req, res) => {
   const { title, content } = req.body;
@@ -93,4 +113,4 @@ const deletePoem = async (req, res) => {
   }
 };
 
-export { getPoems, createPoem, editPoem, deletePoem };
+export { getPoems, getPoem, createPoem, editPoem, deletePoem };

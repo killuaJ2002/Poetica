@@ -3,13 +3,15 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Spinner from "../components/Spinner";
 import PoemView from "../components/PoemView";
-
+import EditPoemModal from "../components/EditPoemModal";
+import { toast } from "react-toastify";
 const PoemPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [poem, setPoem] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     const fetchPoem = async () => {
@@ -29,7 +31,9 @@ const PoemPage = () => {
     if (id) fetchPoem();
   }, [id, navigate]);
 
-  const handleEdit = () => navigate(`/poems/${id}/edit`);
+  const handleEdit = () => {
+    setShowEditModal(true);
+  };
 
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this poem?")) {
@@ -41,7 +45,10 @@ const PoemPage = () => {
           },
         });
 
-        if (res.ok) navigate("/poems");
+        if (res.ok) {
+          toast.success("Poem deleted successfully");
+          navigate("/poems");
+        }
       } catch (error) {
         console.error("Error deleting poem:", error);
       }
@@ -80,13 +87,22 @@ const PoemPage = () => {
   }
 
   return (
-    <PoemView
-      poem={poem}
-      isOwner={isOwner}
-      handleEdit={handleEdit}
-      handleDelete={handleDelete}
-      navigate={navigate}
-    />
+    <>
+      <PoemView
+        poem={poem}
+        isOwner={isOwner}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
+        navigate={navigate}
+      />
+      {showEditModal && (
+        <EditPoemModal
+          poem={poem}
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+        />
+      )}
+    </>
   );
 };
 

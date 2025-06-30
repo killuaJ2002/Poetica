@@ -67,6 +67,13 @@ const PoemPage = () => {
       </div>
     );
   }
+  const onChange = (title, content) => {
+    setPoem((prev) => ({
+      ...prev,
+      title,
+      content,
+    }));
+  };
 
   if (!poem) {
     return (
@@ -100,6 +107,7 @@ const PoemPage = () => {
           poem={poem}
           isOpen={showEditModal}
           onClose={() => setShowEditModal(false)}
+          onChange={onChange}
         />
       )}
     </>

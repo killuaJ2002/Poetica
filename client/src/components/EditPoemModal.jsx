@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import Spinner from "../components/Spinner";
 
-const EditPoemModal = ({ poem, isOpen, onClose }) => {
+const EditPoemModal = ({ poem, isOpen, onClose, onChange }) => {
   const [formData, setFormData] = useState({
     title: poem.title,
     content: poem.content,
@@ -81,6 +81,7 @@ const EditPoemModal = ({ poem, isOpen, onClose }) => {
       }
 
       // Success - reset form and close modal
+      onChange(formData.title.trim(), formData.content.trim());
       setFormData({ title: "", content: "" });
       onClose();
     } catch (error) {

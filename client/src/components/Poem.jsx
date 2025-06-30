@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { Heart, MessageCircle } from "lucide-react";
-
+import { useAuth } from "../context/AuthContext";
 const Poem = ({ poem }) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   // Smart truncation by lines instead of characters
   const lines = poem.content.split("\n");
   const maxLines = 6;
@@ -16,6 +17,11 @@ const Poem = ({ poem }) => {
     displayContent = lines.slice(0, maxLines).join("\n");
     shouldTruncate = true;
   }
+
+  const isOwner =
+    poem &&
+    user &&
+    (poem.authorId?._id === user.id || poem.authorId === user.id);
 
   return (
     <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 w-full group">
@@ -58,15 +64,23 @@ const Poem = ({ poem }) => {
         {/* Action buttons */}
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
           <div className="flex items-center space-x-4">
-            <button className="flex items-center space-x-2 px-4 py-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all">
-              <Heart className="w-5 h-5" />
-              <span>{poem.likesCount || 0}</span>
-            </button>
+            {!isOwner && (
+              <button className="flex items-center space-x-2 px-4 py-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all">
+                <Heart className="w-5 h-5" />
+                <span>{poem.likesCount}</span>
+              </button>
+            )}
 
             <button className="flex items-center space-x-2 px-4 py-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all">
               <MessageCircle className="w-5 h-5" />
               <span>Comment</span>
             </button>
+
+            {isOwner && (
+              <div className="text-sm text-gray-500">
+                {poem.likesCount} {poem.likesCount === 1 ? "like" : "likes"}
+              </div>
+            )}
           </div>
         </div>
       </div>

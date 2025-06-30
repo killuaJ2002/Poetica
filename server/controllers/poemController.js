@@ -48,7 +48,8 @@ const createPoem = async (req, res) => {
       authorId: req.user.id, // Link poem to authenticated user
     });
     await newPoem.save();
-    res.status(201).json({ message: "Poem successfully created" });
+    await newPoem.populate("authorId", "username displayName");
+    res.status(201).json({ newPoem, message: "Poem successfully created" });
   } catch (error) {
     console.log("error: ", error);
     res.status(500).json({ error: "an error occured" });

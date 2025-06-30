@@ -1,13 +1,8 @@
-import {
-  ArrowLeft,
-  Calendar,
-  User,
-  Heart,
-  MessageCircle,
-  Edit3,
-  Trash2,
-} from "lucide-react";
-
+import { ArrowLeft, Calendar, User, Trash2 } from "lucide-react";
+import LikeButton from "./LikeButton";
+import CommentButton from "./CommentButton";
+import EditButton from "./EditButton";
+import DeleteButton from "./DeleteButton";
 const PoemView = ({ poem, isOwner, handleEdit, handleDelete, navigate }) => {
   return (
     <div className="min-h-screen bg-gray-50">
@@ -66,21 +61,13 @@ const PoemView = ({ poem, isOwner, handleEdit, handleDelete, navigate }) => {
             <div className="flex items-center justify-between">
               {/* Left: Likes & Comments */}
               <div className="flex items-center space-x-4">
-                {!isOwner && (
-                  <button className="flex items-center space-x-2 px-4 py-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all">
-                    <Heart className="w-5 h-5" />
-                    <span>{poem.likesCount}</span>
-                  </button>
-                )}
+                {!isOwner && <LikeButton likesCount={poem.likesCount} />}
 
-                <button className="flex items-center space-x-2 px-4 py-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all">
-                  <MessageCircle className="w-5 h-5" />
-                  <span>Comment</span>
-                </button>
+                <CommentButton />
 
                 {isOwner && (
                   <div className="text-sm text-gray-500">
-                    {poem.likesCount} {poem.likesCount === 1 ? "like" : "likes"}
+                    {poem.likesCount} {poem.likesCount <= 1 ? "like" : "likes"}
                   </div>
                 )}
               </div>
@@ -88,21 +75,9 @@ const PoemView = ({ poem, isOwner, handleEdit, handleDelete, navigate }) => {
               {/* Right: Edit/Delete */}
               {isOwner && (
                 <div className="flex items-center space-x-3">
-                  <button
-                    onClick={handleEdit}
-                    className="flex items-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                  >
-                    <Edit3 className="w-4 h-4" />
-                    <span>Edit</span>
-                  </button>
+                  <EditButton onClick={handleEdit} />
 
-                  <button
-                    onClick={handleDelete}
-                    className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    <span>Delete</span>
-                  </button>
+                  <DeleteButton onClick={handleDelete} />
                 </div>
               )}
             </div>

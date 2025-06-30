@@ -44,11 +44,12 @@ const PoemPage = () => {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
-
-        if (res.ok) {
-          toast.success("Poem deleted successfully");
-          navigate("/poems");
+        if (!res.ok) {
+          throw new Error(data.message || "Failed to delete poem");
         }
+
+        toast.success("Poem deleted successfully");
+        navigate("/poems");
       } catch (error) {
         console.error("Error deleting poem:", error);
       }

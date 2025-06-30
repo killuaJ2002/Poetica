@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { Heart, MessageCircle } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import LikeButton from "./LikeButton";
+import CommentButton from "./CommentButton";
 const Poem = ({ poem }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -64,21 +65,13 @@ const Poem = ({ poem }) => {
         {/* Action buttons */}
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
           <div className="flex items-center space-x-4">
-            {!isOwner && (
-              <button className="flex items-center space-x-2 px-4 py-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all">
-                <Heart className="w-5 h-5" />
-                <span>{poem.likesCount}</span>
-              </button>
-            )}
+            {!isOwner && <LikeButton likesCount={poem.likesCount} />}
 
-            <button className="flex items-center space-x-2 px-4 py-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all">
-              <MessageCircle className="w-5 h-5" />
-              <span>Comment</span>
-            </button>
+            <CommentButton />
 
             {isOwner && (
               <div className="text-sm text-gray-500">
-                {poem.likesCount} {poem.likesCount === 1 ? "like" : "likes"}
+                {poem.likesCount} {poem.likesCount <= 1 ? "like" : "likes"}
               </div>
             )}
           </div>

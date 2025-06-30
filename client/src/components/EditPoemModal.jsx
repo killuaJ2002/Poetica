@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import Spinner from "../components/Spinner";
-
+import { toast } from "react-toastify";
 const EditPoemModal = ({ poem, isOpen, onClose, onChange }) => {
   const [formData, setFormData] = useState({
     title: poem.title,
@@ -81,6 +81,7 @@ const EditPoemModal = ({ poem, isOpen, onClose, onChange }) => {
       }
 
       // Success - reset form and close modal
+      toast.success("Poem updated successfully");
       onChange(formData.title.trim(), formData.content.trim());
       setFormData({ title: "", content: "" });
       onClose();

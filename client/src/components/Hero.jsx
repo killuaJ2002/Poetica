@@ -7,8 +7,11 @@ const Hero = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout();
-    navigate("/login", { replace: true });
+    const confirmed = window.confirm("Are you sure you want to log out?");
+    if (confirmed) {
+      logout();
+      navigate("/login", { replace: true });
+    }
   };
 
   return (

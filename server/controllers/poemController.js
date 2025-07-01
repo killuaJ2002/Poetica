@@ -114,4 +114,41 @@ const deletePoem = async (req, res) => {
   }
 };
 
-export { getPoems, getPoem, createPoem, editPoem, deletePoem };
+// like or unlike a poem
+const toggleLikePoem = async (req, res) => {
+  const { id: poemId } = req.params;
+  const userId = req.user.id;
+  if (!poemId || !userId) {
+    return res.status(400).json({ message: "both poemId and userId required" });
+  }
+
+  try {
+    const poem = await Poem.findById(poemId);
+    if (!poem) {
+      return res.status(404).json({ message: "Poem not found" });
+    }
+
+    const alreadyLiked = poem.likedBy.includes(userId);
+
+    if (alreadyLiked) {
+      poem.likedBy.pull(userId);
+      poem.likesCount -= 1;
+    } else {
+      poem.likedBy.push(userId);
+      poem.likesCount += 1;
+    }
+
+    await poem.save();
+
+    return res.status(200).json({
+      message: alreadyLiked ? "unliked poem" : "liked poem",
+      liked: !alreadyLiked,
+      likesCount: poem.likesCount,
+    });
+  } catch (error) {
+    console.error("Like error:", error);
+    res.status(500).json({ message: "failed to like/unlike poem" });
+  }
+};
+
+export { getPoems, getPoem, createPoem, editPoem, deletePoem, toggleLikePoem };

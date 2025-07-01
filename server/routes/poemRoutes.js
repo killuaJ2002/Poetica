@@ -5,6 +5,7 @@ import {
   editPoem,
   deletePoem,
   getPoem,
+  toggleLikePoem,
 } from "../controllers/poemController.js";
 import verifyToken from "../middlewares/authMiddleware.js";
 const router = express.Router();
@@ -23,5 +24,8 @@ router.put("/poems/:id", verifyToken, editPoem);
 
 // Delete existing poem
 router.delete("/poems/:id", verifyToken, deletePoem);
+
+// like or unlike poem
+router.post("/poems/:id/like", verifyToken, toggleLikePoem);
 
 export default router;

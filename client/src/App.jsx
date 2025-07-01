@@ -25,25 +25,18 @@ const App = () => {
         {/* Main Application Routes - Inside MainLayout */}
         <Route path="/" element={<MainLayout />}>
           {/* Redirect root to /poems */}
-          <Route
-            index
-            element={
-              <ProtectedRoute>
-                <Navigate to="/poems" replace />
-              </ProtectedRoute>
-            }
-          />
+          <Route index element={<Navigate to="/poems" replace />} />
 
           {/* Main poems feed */}
+          <Route path="poems" element={<HomePage />} />
           <Route
-            path="poems"
+            path="/poems/:id"
             element={
               <ProtectedRoute>
-                <HomePage />
+                <PoemPage />
               </ProtectedRoute>
             }
           />
-          <Route path="/poems/:id" element={<PoemPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </>

@@ -1,12 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const Hero = () => {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
-
-  const handleLogout = () => {
+  const [isUser, setIsUser] = useState(user ? true : false);
+  const handleClick = () => {
+    if (!isUser) {
+      navigate("/login");
+      return;
+    }
     const confirmed = window.confirm("Are you sure you want to log out?");
     if (confirmed) {
       logout();
@@ -41,10 +45,10 @@ const Hero = () => {
         {/* Logout Button (Right) */}
         <div className="w-1/3 text-right">
           <button
-            onClick={handleLogout}
+            onClick={handleClick}
             className="bg-red-500 hover:bg-red-600 text-white text-sm px-6 py-2 rounded-full transition-all duration-200 shadow-sm hover:shadow-md"
           >
-            Logout
+            {isUser ? "Logout" : "Login"}
           </button>
         </div>
       </header>

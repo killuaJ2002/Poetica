@@ -65,7 +65,7 @@ const Poem = ({ poem }) => {
         {/* Action buttons */}
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
           <div className="flex items-center space-x-4">
-            {!isOwner && <LikeButton likesCount={poem.likesCount} />}
+            {!isOwner && <LikeButton poem={poem} />}
 
             <CommentButton />
 

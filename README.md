@@ -1,39 +1,62 @@
-# 📝 Poetica
+# 🌸 POETICA - where words find their rhythm
 
-Poetica is a full-stack web application that allows hobbyist poets to write, publish, and explore poems while connecting with like-minded writers. Think of it as a social platform — not for photos or videos, but for beautifully written words.
-
----
-
-## 🚀 Features
-
-- ✍️ Create and publish original poems
-- 🔐 User authentication & authorization (JWT)
-- ❤️ Like and comment on poems (only for logged-in users)
-- 🔎 Browse poems by:
-  - Recent
-  - Top (Today / This Week / This Month)
-  - Theme or Tag
-- 📜 View user profiles and their works
+**POETICA** is a responsive, full-stack web application for poetry lovers.  
+Users can sign up, log in, and share their own poems with the community.  
+Guests can browse the homepage and preview poems, while registered users enjoy the full experience of posting, liking, commenting, and managing poems.
 
 ---
 
-## 🛠️ Tech Stack
+## ✏️ **Features**
 
-### Frontend
+- User authentication (sign up / login)
+- Post, edit, and delete your poems
+- Like and comment on others' poems
+- Guests can preview poems (longer poems are partially shown)
+- Full CRUD support for poems
+- Responsive design for desktop and mobile
+
+---
+
+## 🛠 **Tech Stack**
+
+**Frontend:**
 
 - React (with Vite)
-- React Router
-- Axios
-- Tailwind CSS
+- Tailwind CSS for styling
+- react-router-dom for routing
 
-### Backend
+**Backend:**
 
-- Node.js
-- Express
-- MongoDB (with Mongoose)
-- JSON Web Token (JWT)
+- Node.js + Express.js
+- MongoDB for data storage
+
+**Security:**
+
 - bcrypt for password hashing
+- JWT (JSON Web Tokens) for session management
 
 ---
 
-## 📁 Folder Structure
+## 🚀 **Getting Started**
+
+### Prerequisites
+
+- Node.js
+- npm / yarn
+- MongoDB instance (local or cloud)
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/killuaJ2002/Poetica
+cd poetica
+
+# Install dependencies for frontend
+cd client
+npm install
+
+# Install dependencies for backend
+cd ../server
+npm install
+```

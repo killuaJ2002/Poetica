@@ -1,6 +1,9 @@
 # server
 /server/node_modules
 /server/.env
+# Ignore macOS system files
+/server/.DS_Store
+.DS_Store
 
 # client
 /client/node_modules

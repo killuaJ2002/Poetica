@@ -3,7 +3,7 @@ import { MessageCircle } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import AddCommentModal from "./AddCommentModal";
-const CommentButton = () => {
+const CommentButton = ({ poem }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
@@ -30,6 +30,7 @@ const CommentButton = () => {
       </button>
       {showModal && (
         <AddCommentModal
+          poem={poem}
           isOpen={showModal}
           onClose={() => setShowModal(false)}
           onChange={onChange}

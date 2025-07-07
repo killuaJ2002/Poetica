@@ -63,7 +63,7 @@ const PoemView = ({ poem, isOwner, handleEdit, handleDelete, navigate }) => {
               <div className="flex items-center space-x-4">
                 {!isOwner && <LikeButton poem={poem} />}
 
-                <CommentButton />
+                <CommentButton poem={poem} />
 
                 {isOwner && (
                   <div className="text-sm text-gray-500">

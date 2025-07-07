@@ -1,5 +1,5 @@
-import Comment from "../models/Comment";
-
+import Comment from "../models/Comment.js";
+import mongoose from "mongoose";
 // get all the comments
 const getComments = async (req, res) => {
   const { id: poemId } = req.params;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import Spinner from "../components/Spinner";
 
@@ -7,6 +7,7 @@ const CreatePoemModal = ({ isOpen, onClose, onChange }) => {
     title: "",
     content: "",
   });
+  const titleRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -38,6 +39,9 @@ const CreatePoemModal = ({ isOpen, onClose, onChange }) => {
     if (isOpen) {
       setFormData({ title: "", content: "" });
       setError("");
+      setTimeout(() => {
+        titleRef.current?.focus();
+      }, 0);
     }
   }, [isOpen]);
 
@@ -163,6 +167,7 @@ const CreatePoemModal = ({ isOpen, onClose, onChange }) => {
                     name="title"
                     value={formData.title}
                     onChange={handleChange}
+                    ref={titleRef}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Enter poem title"
                     required

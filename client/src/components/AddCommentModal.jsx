@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import Spinner from "../components/Spinner";
 
-const CreatePoemModal = ({ isOpen, onClose, onChange }) => {
+const CreatePoemModal = ({ poem, isOpen, onClose, onChange }) => {
   const [formData, setFormData] = useState({
-    title: "",
     content: "",
   });
+  const textareaRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -36,8 +36,11 @@ const CreatePoemModal = ({ isOpen, onClose, onChange }) => {
   // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
-      setFormData({ title: "", content: "" });
+      setFormData({ content: "" });
       setError("");
+      setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 0);
     }
   }, [isOpen]);
 
@@ -58,18 +61,18 @@ const CreatePoemModal = ({ isOpen, onClose, onChange }) => {
     setError("");
 
     // Basic validation
-    if (!formData.title.trim() || !formData.content.trim()) {
-      setError("Please fill in both title and content");
+    if (!formData.content.trim()) {
+      setError("Comment can not be empty");
       setLoading(false);
       return;
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/poems`, {
+      const response = await fetch(`${API_BASE_URL}/poems/comment`, {
         method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify({
-          title: formData.title.trim(),
+          poemId: poem._id,
           content: formData.content.trim(),
         }),
       });
@@ -77,15 +80,15 @@ const CreatePoemModal = ({ isOpen, onClose, onChange }) => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to create poem");
+        throw new Error(data.message || "Failed to post comment");
       }
 
       // Success - reset form and close modal
-      onChange(data.newPoem);
-      setFormData({ title: "", content: "" });
+      onChange(data.comment);
+      setFormData({ content: "" });
       onClose();
     } catch (error) {
-      console.error("Error creating poem:", error);
+      console.error("Error posting comment:", error);
       setError(error.message || "Something went wrong. Please try again.");
     }
 
@@ -157,6 +160,7 @@ const CreatePoemModal = ({ isOpen, onClose, onChange }) => {
                     rows={4}
                     value={formData.content}
                     onChange={handleChange}
+                    ref={textareaRef}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                     placeholder="Write your comment here..."
                     required
@@ -181,9 +185,7 @@ const CreatePoemModal = ({ isOpen, onClose, onChange }) => {
                   </button>
                   <button
                     type="submit"
-                    disabled={
-                      !formData.title.trim() || !formData.content.trim()
-                    }
+                    disabled={!formData.content.trim()}
                     className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-blue-400 disabled:cursor-not-allowed"
                   >
                     Post

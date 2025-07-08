@@ -1,67 +1,59 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import Spinner from "../components/Spinner";
+import clsx from "clsx"; // Optional: to clean up conditional class logic (optional helper)
 
 const CreatePoemModal = ({ isOpen, onClose, onChange }) => {
-  const [formData, setFormData] = useState({
-    title: "",
-    content: "",
-  });
+  const [formData, setFormData] = useState({ title: "", content: "" });
   const titleRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showModal, setShowModal] = useState(false); // <-- NEW
 
   const { getAuthHeaders } = useAuth();
   const API_BASE_URL = "http://localhost:8000/api";
 
-  // Close modal on Escape key
+  useEffect(() => {
+    if (isOpen) {
+      setShowModal(true); // Start animation on mount
+      setTimeout(() => {
+        titleRef.current?.focus();
+      }, 0);
+    } else {
+      setShowModal(false);
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === "Escape" && !loading) {
-        onClose();
-      }
+      if (e.key === "Escape" && !loading) onClose();
     };
-
     if (isOpen) {
       document.addEventListener("keydown", handleEscape);
-      // Prevent body scroll when modal is open
       document.body.style.overflow = "hidden";
     }
-
     return () => {
       document.removeEventListener("keydown", handleEscape);
       document.body.style.overflow = "unset";
     };
   }, [isOpen, onClose, loading]);
 
-  // Reset form when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      setFormData({ title: "", content: "" });
-      setError("");
-      setTimeout(() => {
-        titleRef.current?.focus();
-      }, 0);
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget && !loading) {
+      onClose();
     }
-  }, [isOpen]);
+  };
 
-  // Handle form input changes
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-    // Clear error when user starts typing
+    setFormData({ ...formData, [e.target.name]: e.target.value });
     if (error) setError("");
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    // Basic validation
     if (!formData.title.trim() || !formData.content.trim()) {
       setError("Please fill in both title and content");
       setLoading(false);
@@ -79,12 +71,9 @@ const CreatePoemModal = ({ isOpen, onClose, onChange }) => {
       });
 
       const data = await response.json();
-
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error(data.message || "Failed to create poem");
-      }
 
-      // Success - reset form and close modal
       onChange(data.newPoem);
       setFormData({ title: "", content: "" });
       onClose();
@@ -96,28 +85,24 @@ const CreatePoemModal = ({ isOpen, onClose, onChange }) => {
     setLoading(false);
   };
 
-  // Close modal when clicking on backdrop (only if not loading)
-  const handleBackdropClick = (e) => {
-    if (e.target === e.currentTarget && !loading) {
-      onClose();
-    }
-  };
-
-  // Don't render if not open
   if (!isOpen) return null;
 
   return (
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-200"
+        className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300"
         onClick={handleBackdropClick}
       />
 
-      {/* Modal */}
+      {/* Modal Container */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto transform transition-all duration-200 scale-100">
-          {/* Show loading spinner when processing */}
+        <div
+          className={clsx(
+            "bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto transform transition-all duration-300 ease-out",
+            showModal ? "opacity-100 scale-100" : "opacity-0 scale-95"
+          )}
+        >
           {loading ? (
             <div className="flex flex-col items-center justify-center p-12">
               <Spinner className="w-8 h-8 mb-4" />
@@ -125,7 +110,7 @@ const CreatePoemModal = ({ isOpen, onClose, onChange }) => {
             </div>
           ) : (
             <>
-              {/* Modal Header */}
+              {/* Header */}
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
                 <h2 className="text-xl font-semibold text-gray-900">
                   Create New Poem
@@ -151,9 +136,8 @@ const CreatePoemModal = ({ isOpen, onClose, onChange }) => {
                 </button>
               </div>
 
-              {/* Modal Body */}
+              {/* Body */}
               <form onSubmit={handleSubmit} className="p-6">
-                {/* Title Field */}
                 <div className="mb-4">
                   <label
                     htmlFor="title"
@@ -174,7 +158,6 @@ const CreatePoemModal = ({ isOpen, onClose, onChange }) => {
                   />
                 </div>
 
-                {/* Content Field */}
                 <div className="mb-4">
                   <label
                     htmlFor="content"
@@ -194,19 +177,17 @@ const CreatePoemModal = ({ isOpen, onClose, onChange }) => {
                   />
                 </div>
 
-                {/* Error Message */}
                 {error && (
                   <div className="mb-4 text-red-600 text-sm text-center bg-red-50 border border-red-200 rounded-md p-3">
                     {error}
                   </div>
                 )}
 
-                {/* Modal Footer */}
                 <div className="flex justify-end space-x-3">
                   <button
                     type="button"
                     onClick={onClose}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors duration-200"
                   >
                     Cancel
                   </button>
@@ -215,7 +196,7 @@ const CreatePoemModal = ({ isOpen, onClose, onChange }) => {
                     disabled={
                       !formData.title.trim() || !formData.content.trim()
                     }
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-blue-400 disabled:cursor-not-allowed"
+                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-200 disabled:bg-blue-400 disabled:cursor-not-allowed"
                   >
                     Create Poem
                   </button>

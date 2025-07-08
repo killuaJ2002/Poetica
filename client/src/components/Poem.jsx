@@ -67,7 +67,7 @@ const Poem = ({ poem }) => {
           <div className="flex items-center space-x-4">
             {!isOwner && <LikeButton poem={poem} />}
 
-            <CommentButton poem={poem} />
+            <CommentButton poem={poem} onChange={Function.prototype} />
 
             {isOwner && (
               <div className="text-sm text-gray-500">

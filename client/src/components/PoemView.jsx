@@ -1,9 +1,18 @@
-import { ArrowLeft, Calendar, User, Trash2 } from "lucide-react";
+import { ArrowLeft, Calendar, User } from "lucide-react";
 import LikeButton from "./LikeButton";
 import CommentButton from "./CommentButton";
 import EditButton from "./EditButton";
 import DeleteButton from "./DeleteButton";
-const PoemView = ({ poem, isOwner, handleEdit, handleDelete, navigate }) => {
+import CommentSection from "./CommentSection";
+const PoemView = ({
+  poem,
+  isOwner,
+  handleEdit,
+  handleDelete,
+  navigate,
+  comments,
+  onChange,
+}) => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-6 py-8">
@@ -62,9 +71,7 @@ const PoemView = ({ poem, isOwner, handleEdit, handleDelete, navigate }) => {
               {/* Left: Likes & Comments */}
               <div className="flex items-center space-x-4">
                 {!isOwner && <LikeButton poem={poem} />}
-
-                <CommentButton poem={poem} />
-
+                <CommentButton poem={poem} onChange={onChange} />
                 {isOwner && (
                   <div className="text-sm text-gray-500">
                     {poem.likesCount} {poem.likesCount <= 1 ? "like" : "likes"}
@@ -76,13 +83,17 @@ const PoemView = ({ poem, isOwner, handleEdit, handleDelete, navigate }) => {
               {isOwner && (
                 <div className="flex items-center space-x-3">
                   <EditButton onClick={handleEdit} />
-
                   <DeleteButton onClick={handleDelete} />
                 </div>
               )}
             </div>
           </div>
         </div>
+        {comments.length > 0 ? (
+          <CommentSection comments={comments} />
+        ) : (
+          <p className="text-center text-gray-500 mt-8">No comments yet.</p>
+        )}
       </div>
     </div>
   );

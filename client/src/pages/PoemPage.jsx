@@ -8,10 +8,11 @@ import { toast } from "react-toastify";
 const PoemPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, getAuthHeaders } = useAuth();
   const [poem, setPoem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [comments, setComments] = useState([]);
 
   useEffect(() => {
     const fetchPoem = async () => {
@@ -27,8 +28,30 @@ const PoemPage = () => {
         setLoading(false);
       }
     };
+    const fetchComments = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:8000/api/poems/${id}/comment`,
+          {
+            method: "GET",
+            headers: getAuthHeaders(),
+          }
+        );
+        if (!res.ok) throw new Error("Comments not found");
+        const data = await res.json();
+        setComments(data.comments);
+      } catch (error) {
+        console.error("Error fetching comments:", error);
+        navigate("/poems");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (id) fetchPoem();
+    if (id) {
+      fetchPoem();
+      fetchComments();
+    }
   }, [id, navigate]);
 
   const handleEdit = () => {
@@ -76,6 +99,10 @@ const PoemPage = () => {
     }));
   };
 
+  const handleCommentChange = (comment) => {
+    setComments((prev) => [comment, ...prev]);
+  };
+
   if (!poem) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -102,6 +129,8 @@ const PoemPage = () => {
         handleEdit={handleEdit}
         handleDelete={handleDelete}
         navigate={navigate}
+        comments={comments}
+        onChange={handleCommentChange}
       />
       {showEditModal && (
         <EditPoemModal

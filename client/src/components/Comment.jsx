@@ -1,3 +1,4 @@
+import { formatDistanceToNow } from "date-fns";
 const Comment = ({ comment }) => {
   return (
     <div className="border border-gray-100 rounded-lg p-4 mb-4 bg-gray-50">
@@ -5,7 +6,11 @@ const Comment = ({ comment }) => {
         <span className="text-sm font-medium text-gray-700">
           {comment.author.displayName || comment.author.username}
         </span>
-        <span className="text-xs text-gray-500">{comment.createdAt}</span>
+        <span className="text-xs text-gray-500">
+          {formatDistanceToNow(new Date(comment.createdAt), {
+            addSuffix: true,
+          })}
+        </span>
       </div>
       <p className="text-sm text-gray-700">{comment.content}</p>
     </div>

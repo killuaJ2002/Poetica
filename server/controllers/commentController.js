@@ -33,14 +33,14 @@ const postComment = async (req, res) => {
   }
 
   try {
-    const newComment = new Comment({
+    let newComment = new Comment({
       content: content.trim(),
       poem: poemId,
       author: req.user._id,
     });
 
     await newComment.save();
-
+    newComment = await newComment.populate("author", "username displayName");
     res.status(201).json({ message: "Comment added", comment: newComment });
   } catch (error) {
     console.error("Error creating comment:", error);

@@ -1,6 +1,6 @@
 import Comment from "../models/Comment.js";
 import mongoose from "mongoose";
-// get all the comments
+// get all the comments for a poem
 const getComments = async (req, res) => {
   const { id: poemId } = req.params;
   if (!poemId) {
@@ -48,4 +48,28 @@ const postComment = async (req, res) => {
   }
 };
 
-export { getComments, postComment };
+// delete a comment
+const deleteComment = async (req, res) => {
+  const { id: commentId } = req.params;
+  const { authorId } = req.body;
+  if (!commentId || !mongoose.Types.ObjectId.isValid(commentId)) {
+    return res.status(400).json({ message: "Valid comment id is required" });
+  }
+  if (!authorId) {
+    return res.status(400).json({ message: "Author ID required" });
+  }
+  try {
+    if (authorId.toString() !== req.user.id.toString()) {
+      return res
+        .status(403)
+        .json({ message: "Not authorized to delete this comment" });
+    }
+    await Comment.findByIdAndDelete(commentId);
+    res.status(200).json({ message: "Comment deleted successfully" });
+  } catch (error) {
+    console.log("couldn't delete comment:", error);
+    res.status(500).json({ message: "Couldn't delete comment" });
+  }
+};
+
+export { getComments, postComment, deleteComment };

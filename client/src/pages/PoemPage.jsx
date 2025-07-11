@@ -103,6 +103,36 @@ const PoemPage = () => {
     setComments((prev) => [comment, ...prev]);
   };
 
+  const handleDeleteComment = async (commentId) => {
+    if (!commentId) {
+      throw new Error("comment id is required");
+    }
+    if (window.confirm("Are you sure you want to delete this comment?")) {
+      try {
+        const res = await fetch(
+          `http://localhost:8000/api/poems/comment/${commentId}`,
+          {
+            method: "DELETE",
+            headers: getAuthHeaders(),
+            body: JSON.stringify({
+              authorId: user.id,
+            }),
+          }
+        );
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.message || "Failed to delete comment");
+        }
+        setComments((prevComments) =>
+          prevComments.filter((prevComment) => prevComment._id !== commentId)
+        );
+        console.log(data.message);
+      } catch (error) {
+        console.log("Error deleting coment ", error);
+      }
+    }
+  };
+
   if (!poem) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -131,6 +161,7 @@ const PoemPage = () => {
         navigate={navigate}
         comments={comments}
         onChange={handleCommentChange}
+        onDeleteComment={handleDeleteComment}
       />
       {showEditModal && (
         <EditPoemModal

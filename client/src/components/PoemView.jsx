@@ -12,6 +12,7 @@ const PoemView = ({
   navigate,
   comments,
   onChange,
+  onDeleteComment,
 }) => {
   return (
     <div className="min-h-screen bg-gray-50">
@@ -90,7 +91,10 @@ const PoemView = ({
           </div>
         </div>
         {comments.length > 0 ? (
-          <CommentSection comments={comments} />
+          <CommentSection
+            comments={comments}
+            onDeleteComment={onDeleteComment}
+          />
         ) : (
           <p className="text-center text-gray-500 mt-8">No comments yet.</p>
         )}

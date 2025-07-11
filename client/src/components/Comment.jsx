@@ -33,7 +33,7 @@ const Comment = ({ comment, onDeleteComment }) => {
               </p>
             </div>
             <button
-              onClick={() => onDeleteComment(comment.id)}
+              onClick={() => onDeleteComment(comment._id)}
               className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-50 text-red-500 hover:text-red-700 transition-all duration-200"
               title="Delete comment"
             >

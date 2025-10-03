@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 const LikeButton = ({ poem }) => {
   const { user, getAuthHeaders } = useAuth();
   const navigate = useNavigate();
-  const API_BASE_URL = `http://localhost:8000/api`;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const userId = user ? user.id : null;
 
   const [liked, setLiked] = useState(

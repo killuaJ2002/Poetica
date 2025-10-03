@@ -13,11 +13,12 @@ const PoemPage = () => {
   const [loading, setLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
   const [comments, setComments] = useState([]);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     const fetchPoem = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/api/poems/${id}`);
+        const res = await fetch(`${API_BASE_URL}/poems/${id}`);
         if (!res.ok) throw new Error("Poem not found");
         const data = await res.json();
         setPoem(data);
@@ -30,13 +31,10 @@ const PoemPage = () => {
     };
     const fetchComments = async () => {
       try {
-        const res = await fetch(
-          `http://localhost:8000/api/poems/${id}/comment`,
-          {
-            method: "GET",
-            headers: getAuthHeaders(),
-          }
-        );
+        const res = await fetch(`${API_BASE_URL}/poems/${id}/comment`, {
+          method: "GET",
+          headers: getAuthHeaders(),
+        });
         if (!res.ok) throw new Error("Comments not found");
         const data = await res.json();
         setComments(data.comments);
@@ -61,7 +59,7 @@ const PoemPage = () => {
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this poem?")) {
       try {
-        const res = await fetch(`http://localhost:8000/api/poems/${id}`, {
+        const res = await fetch(`${API_BASE_URL}/poems/${id}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -109,16 +107,13 @@ const PoemPage = () => {
     }
     if (window.confirm("Are you sure you want to delete this comment?")) {
       try {
-        const res = await fetch(
-          `http://localhost:8000/api/poems/comment/${commentId}`,
-          {
-            method: "DELETE",
-            headers: getAuthHeaders(),
-            body: JSON.stringify({
-              authorId: user.id,
-            }),
-          }
-        );
+        const res = await fetch(`${API_BASE_URL}/poems/comment/${commentId}`, {
+          method: "DELETE",
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            authorId: user.id,
+          }),
+        });
         const data = await res.json();
         if (!res.ok) {
           throw new Error(data.message || "Failed to delete comment");

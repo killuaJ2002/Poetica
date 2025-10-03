@@ -8,7 +8,7 @@ const AddCommentModal = ({ poem, isOpen, onClose, onChange }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { getAuthHeaders } = useAuth();
-  const API_BASE_URL = "http://localhost:8000/api";
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   // Close on ESC
   useEffect(() => {

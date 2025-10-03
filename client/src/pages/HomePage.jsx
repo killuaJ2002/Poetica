@@ -6,11 +6,12 @@ const HomePage = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [poems, setPoems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     const fetchPoems = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/poems");
+        const res = await fetch(`${API_BASE_URL}/poems`);
         const data = await res.json();
         setPoems(data);
       } catch (error) {

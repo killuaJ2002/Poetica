@@ -2,15 +2,15 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import LikeButton from "./LikeButton";
 import CommentButton from "./CommentButton";
+
 const Poem = ({ poem }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  // Smart truncation by lines instead of characters
+
   const lines = poem.content.split("\n");
-  const maxLines = 6;
+  const maxLines = 8;
   const isLongPoem = lines.length > maxLines;
 
-  // Truncate at natural break points (line breaks)
   let displayContent = poem.content;
   let shouldTruncate = false;
 
@@ -24,60 +24,68 @@ const Poem = ({ poem }) => {
     user &&
     (poem.authorId?._id === user.id || poem.authorId === user.id);
 
+  const authorName =
+    poem.authorId?.displayName || poem.authorId?.username || "Unknown Author";
+
   return (
-    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 w-full group">
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-3">
-          <h2 className="text-xl font-semibold text-gray-800 flex-1 mr-2">
-            {poem.title}
-          </h2>
-        </div>
-
-        <div className="relative">
-          <p className="text-gray-700 whitespace-pre-wrap leading-relaxed mb-4">
-            {displayContent}
-          </p>
-
-          {/* Subtle fade effect for truncated poems */}
-          {shouldTruncate && (
-            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
-          )}
-        </div>
-
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-sm text-gray-500">
-            by{" "}
-            <span className="font-medium">
-              {poem.authorId?.displayName ||
-                poem.authorId?.username ||
-                "Unknown Author"}
-            </span>
-          </p>
-
-          <button
-            onClick={() => navigate(`/poems/${poem._id}`)}
-            className="text-indigo-600 hover:text-indigo-800 text-sm font-medium transition-all duration-200 hover:bg-indigo-50 px-3 py-1 rounded-full"
-          >
-            Read More
-          </button>
-        </div>
-
-        {/* Action buttons */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-          <div className="flex items-center space-x-4">
-            {!isOwner && <LikeButton poem={poem} />}
-
-            <CommentButton poem={poem} onChange={Function.prototype} />
-
-            {isOwner && (
-              <div className="text-sm text-gray-500">
-                {poem.likesCount} {poem.likesCount <= 1 ? "like" : "likes"}
-              </div>
-            )}
+    <article className="bg-white border border-gray-200 rounded-lg hover:shadow-md transition-all duration-300 overflow-hidden">
+      {/* Header */}
+      <div className="px-6 py-5 border-b border-gray-100">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <h2
+              className="text-2xl font-serif text-gray-900 mb-2 cursor-pointer hover:text-gray-700 transition-colors"
+              onClick={() => navigate(`/poems/${poem._id}`)}
+            >
+              {poem.title}
+            </h2>
+            <p className="text-sm text-gray-500">
+              by <span className="font-medium text-gray-700">{authorName}</span>
+            </p>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Content */}
+      <div className="px-6 py-6 relative">
+        <div
+          className="font-serif text-gray-800 leading-relaxed whitespace-pre-wrap cursor-pointer"
+          onClick={() => navigate(`/poems/${poem._id}`)}
+        >
+          {displayContent}
+        </div>
+
+        {shouldTruncate && (
+          <>
+            <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none"></div>
+            <button
+              onClick={() => navigate(`/poems/${poem._id}`)}
+              className="mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium relative z-10"
+            >
+              Continue reading →
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* Actions */}
+      <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
+        <div className="flex items-center gap-3">
+          {!isOwner && <LikeButton poem={poem} />}
+
+          <CommentButton poem={poem} onChange={Function.prototype} />
+
+          {isOwner && (
+            <div className="flex items-center gap-1.5 text-gray-500 text-sm ml-auto">
+              <span className="font-medium text-gray-700">
+                {poem.likesCount}
+              </span>
+              <span>{poem.likesCount === 1 ? "like" : "likes"}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </article>
   );
 };
 

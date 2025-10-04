@@ -3,15 +3,13 @@ import Spinner from "./Spinner";
 
 const PoemFeed = ({ poems, loading }) => {
   return (
-    <main className="p-6">
+    <main className="max-w-4xl mx-auto px-6 py-8">
       {loading ? (
         <Spinner loading={loading} />
       ) : (
-        <div className="columns-1 md:columns-2 gap-6 space-y-6">
+        <div className="space-y-6">
           {poems.map((poem) => (
-            <div key={poem._id} className="break-inside-avoid mb-6">
-              <Poem poem={poem} />
-            </div>
+            <Poem key={poem._id} poem={poem} />
           ))}
         </div>
       )}

@@ -33,7 +33,6 @@ const HomePage = () => {
 
   return (
     <>
-      <Navbar />
       <PoemFeed poems={poems} loading={loading} />
       {/* Floating Action Button */}
       <button

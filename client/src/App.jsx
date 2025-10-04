@@ -13,6 +13,7 @@ import SignupPage from "./pages/SignupPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PoemPage from "./pages/PoemPage";
+import AboutPage from "./pages/AboutPage";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -21,7 +22,7 @@ const App = () => {
         {/* Public Routes - Outside MainLayout */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-
+        <Route path="/about" element={<AboutPage />} />
         {/* Main Application Routes - Inside MainLayout */}
         <Route path="/" element={<MainLayout />}>
           {/* Redirect root to /poems */}

@@ -1,16 +1,28 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
-import Spinner from "./Spinner"; // assumed path
+import Spinner from "./Spinner";
+import { X } from "lucide-react";
 
 const AddCommentModal = ({ poem, isOpen, onClose, onChange }) => {
   const [formData, setFormData] = useState({ content: "" });
   const textareaRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showModal, setShowModal] = useState(false);
   const { getAuthHeaders } = useAuth();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  // Close on ESC
+  useEffect(() => {
+    if (isOpen) {
+      setShowModal(true);
+      setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 100);
+    } else {
+      setShowModal(false);
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === "Escape" && !loading) onClose();
@@ -31,9 +43,6 @@ const AddCommentModal = ({ poem, isOpen, onClose, onChange }) => {
     if (isOpen) {
       setFormData({ content: "" });
       setError("");
-      setTimeout(() => {
-        textareaRef.current?.focus();
-      }, 0);
     }
   }, [isOpen]);
 
@@ -83,95 +92,78 @@ const AddCommentModal = ({ poem, isOpen, onClose, onChange }) => {
   if (!isOpen) return null;
 
   return (
-    <div
-      onClick={handleBackdropClick}
-      className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center"
-    >
-      <div className="bg-white w-full max-w-md rounded-xl shadow-lg p-6 relative animate-scaleIn">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">Add a Comment</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-700"
-            aria-label="Close"
-          >
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+    <>
+      {/* Backdrop */}
+      <div
+        className={`fixed inset-0 bg-black z-40 transition-opacity duration-300 ${
+          showModal ? "bg-opacity-50" : "bg-opacity-0"
+        }`}
+        onClick={handleBackdropClick}
+      />
+
+      {/* Modal */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div
+          className={`bg-white w-full max-w-lg rounded-lg shadow-xl transform transition-all duration-300 ease-out ${
+            showModal ? "opacity-100 scale-100" : "opacity-0 scale-95"
+          }`}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900">Add Comment</h2>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100"
+              aria-label="Close"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-
-        {loading ? (
-          <div className="flex justify-center items-center py-10">
-            <Spinner className="w-8 h-8" />
+              <X className="w-5 h-5" />
+            </button>
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <textarea
-              name="content"
-              ref={textareaRef}
-              rows="4"
-              value={formData.content}
-              onChange={handleChange}
-              placeholder="Write your thoughts..."
-              className="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-            />
 
-            {error && (
-              <div className="text-sm text-red-600 bg-red-100 border border-red-200 p-2 rounded-md">
-                {error}
-              </div>
-            )}
-
-            <div className="flex justify-end space-x-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={!formData.content.trim()}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
-              >
-                Post
-              </button>
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <Spinner loading={loading} />
+              <p className="text-gray-600 text-sm mt-4">Posting comment...</p>
             </div>
-          </form>
-        )}
-      </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="p-6">
+              <textarea
+                name="content"
+                ref={textareaRef}
+                rows="6"
+                value={formData.content}
+                onChange={handleChange}
+                placeholder="Share your thoughts about this poem..."
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-base leading-relaxed"
+              />
 
-      {/* Animation class */}
-      <style>
-        {`
-        .animate-scaleIn {
-          animation: scaleIn 0.2s ease-out;
-        }
-        @keyframes scaleIn {
-          from {
-            opacity: 0;
-            transform: scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-        `}
-      </style>
-    </div>
+              {error && (
+                <div className="mt-4 text-sm text-red-600 bg-red-50 border border-red-200 p-3 rounded-lg">
+                  {error}
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={!formData.content.trim()}
+                  className="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  Post Comment
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      </div>
+    </>
   );
 };
 

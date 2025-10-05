@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import Spinner from "../components/Spinner";
 import { toast } from "react-toastify";
+import { X } from "lucide-react";
+
 const EditPoemModal = ({ poem, isOpen, onClose, onChange }) => {
   const [formData, setFormData] = useState({
     title: poem.title,
@@ -9,11 +11,23 @@ const EditPoemModal = ({ poem, isOpen, onClose, onChange }) => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const titleRef = useRef(null);
 
   const { getAuthHeaders } = useAuth();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  // Close modal on Escape key
+  useEffect(() => {
+    if (isOpen) {
+      setShowModal(true);
+      setTimeout(() => {
+        titleRef.current?.focus();
+      }, 100);
+    } else {
+      setShowModal(false);
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === "Escape" && !loading) {
@@ -23,7 +37,6 @@ const EditPoemModal = ({ poem, isOpen, onClose, onChange }) => {
 
     if (isOpen) {
       document.addEventListener("keydown", handleEscape);
-      // Prevent body scroll when modal is open
       document.body.style.overflow = "hidden";
     }
 
@@ -33,31 +46,26 @@ const EditPoemModal = ({ poem, isOpen, onClose, onChange }) => {
     };
   }, [isOpen, onClose, loading]);
 
-  // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
       setFormData({ title: poem.title, content: poem.content });
       setError("");
     }
-  }, [isOpen]);
+  }, [isOpen, poem.title, poem.content]);
 
-  // Handle form input changes
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
-    // Clear error when user starts typing
     if (error) setError("");
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    // Basic validation
     if (!formData.title.trim() || !formData.content.trim()) {
       setError("Please fill in both title and content");
       setLoading(false);
@@ -80,10 +88,8 @@ const EditPoemModal = ({ poem, isOpen, onClose, onChange }) => {
         throw new Error(data.message || "Failed to update poem");
       }
 
-      // Success - reset form and close modal
       toast.success("Poem updated successfully");
       onChange(formData.title.trim(), formData.content.trim());
-      setFormData({ title: "", content: "" });
       onClose();
     } catch (error) {
       console.error("Error updating poem:", error);
@@ -93,70 +99,58 @@ const EditPoemModal = ({ poem, isOpen, onClose, onChange }) => {
     setLoading(false);
   };
 
-  // Close modal when clicking on backdrop (only if not loading)
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget && !loading) {
       onClose();
     }
   };
 
-  // Don't render if not open
   if (!isOpen) return null;
 
   return (
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-200"
+        className={`fixed inset-0 bg-black z-40 transition-opacity duration-300 ${
+          showModal ? "bg-opacity-50" : "bg-opacity-0"
+        }`}
         onClick={handleBackdropClick}
       />
 
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto transform transition-all duration-200 scale-100">
-          {/* Show loading spinner when processing */}
+        <div
+          className={`bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transform transition-all duration-300 ease-out ${
+            showModal ? "opacity-100 scale-100" : "opacity-0 scale-95"
+          }`}
+        >
           {loading ? (
-            <div className="flex flex-col items-center justify-center p-12">
-              <Spinner className="w-8 h-8 mb-4" />
-              <p className="text-gray-600 text-sm">Updating poem...</p>
+            <div className="flex flex-col items-center justify-center p-16">
+              <Spinner loading={loading} />
+              <p className="text-gray-600 text-sm mt-4">Updating poem...</p>
             </div>
           ) : (
             <>
-              {/* Modal Header */}
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Edit Poem
-                </h2>
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
+                <h2 className="text-2xl font-serif text-gray-900">Edit Poem</h2>
                 <button
                   onClick={onClose}
-                  className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                  className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100"
                   aria-label="Close modal"
                 >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
-              {/* Modal Body */}
+              {/* Body */}
               <form onSubmit={handleSubmit} className="p-6">
-                {/* Title Field */}
-                <div className="mb-4">
+                <div className="mb-6">
                   <label
                     htmlFor="title"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Title *
+                    Title
                   </label>
                   <input
                     type="text"
@@ -164,45 +158,43 @@ const EditPoemModal = ({ poem, isOpen, onClose, onChange }) => {
                     name="title"
                     value={formData.title}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Enter poem title"
+                    ref={titleRef}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-serif text-lg"
+                    placeholder="Untitled"
                     required
                   />
                 </div>
 
-                {/* Content Field */}
-                <div className="mb-4">
+                <div className="mb-6">
                   <label
                     htmlFor="content"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Poem Content *
+                    Content
                   </label>
                   <textarea
                     id="content"
                     name="content"
-                    rows={8}
+                    rows={12}
                     value={formData.content}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none font-serif text-base leading-relaxed"
                     placeholder="Write your poem here..."
                     required
                   />
                 </div>
 
-                {/* Error Message */}
                 {error && (
-                  <div className="mb-4 text-red-600 text-sm text-center bg-red-50 border border-red-200 rounded-md p-3">
+                  <div className="mb-6 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
                     {error}
                   </div>
                 )}
 
-                {/* Modal Footer */}
-                <div className="flex justify-end space-x-3">
+                <div className="flex justify-end gap-3">
                   <button
                     type="button"
                     onClick={onClose}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors"
                   >
                     Cancel
                   </button>
@@ -211,9 +203,9 @@ const EditPoemModal = ({ poem, isOpen, onClose, onChange }) => {
                     disabled={
                       !formData.title.trim() || !formData.content.trim()
                     }
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-blue-400 disabled:cursor-not-allowed"
+                    className="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                   >
-                    Update Poem
+                    Save Changes
                   </button>
                 </div>
               </form>

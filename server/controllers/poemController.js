@@ -1,12 +1,22 @@
+import mongoose from "mongoose";
 import Poem from "../models/Poem.js";
 
 // get poems
 const getPoems = async (req, res) => {
   try {
-    const poems = await Poem.find()
+    const { cursor } = req.query;
+    const poems = await Poem.find(
+      cursor ? { _id: { $lt: new mongoose.Types.ObjectId(cursor) } } : {}
+    )
       .populate("authorId", "username displayName")
-      .sort({ publishedAt: -1 });
-    res.status(200).json(poems);
+      .sort({ _id: -1 })
+      .limit(5);
+    res
+      .status(200)
+      .json({
+        poems,
+        nextCursor: poems.length ? poems[poems.length - 1]._id : null,
+      });
   } catch (error) {
     console.log("error", error);
     res.status(500).json({ error: "An error occured" });

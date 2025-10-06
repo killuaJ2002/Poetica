@@ -9,6 +9,7 @@ const HomePage = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [poems, setPoems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
@@ -16,9 +17,11 @@ const HomePage = () => {
   useEffect(() => {
     const fetchPoems = async () => {
       try {
+        setLoading(true);
         const res = await fetch(`${API_BASE_URL}/poems`);
         const data = await res.json();
         setPoems(data.poems);
+        setHasMore(data.nextCursor === null ? false : true);
       } catch (error) {
         console.log("error fetching data", error);
       } finally {
@@ -33,12 +36,14 @@ const HomePage = () => {
     setPoems((prev) => [poem, ...prev]);
   };
 
-  const handleLoadMore = async () => {
+  const handleNextData = async () => {
     try {
+      setLoading(true);
       const cursor = poems[poems.length - 1]._id;
       const res = await fetch(`${API_BASE_URL}/poems?cursor=${cursor}`);
       const data = await res.json();
       setPoems((prevPoems) => [...prevPoems, ...data.poems]);
+      setHasMore(data.nextCursor === null ? false : true);
     } catch (error) {
       console.log("error fetching data", error);
     } finally {
@@ -50,7 +55,12 @@ const HomePage = () => {
   return (
     <>
       {/* <Navbar /> */}
-      <PoemFeed poems={poems} loading={loading} />
+      <PoemFeed
+        poems={poems}
+        loading={loading}
+        hasMore={hasMore}
+        fetchMorePoems={handleNextData}
+      />
 
       {/* Floating Action Button */}
       <button
@@ -89,9 +99,6 @@ const HomePage = () => {
           onChange={onChange}
         />
       )}
-
-      {/* Load more button */}
-      <button onClick={handleLoadMore}>Load More</button>
     </>
   );
 };
